@@ -17,17 +17,81 @@ test "Basic vector usage" {
 
 test "Conversion between vectors, arrays, and slices" {
     var arr1: [4]f32 = [_]f32{ 1.2, 2.3, 4.5, 5.6 };
-    var vec: @Vector(4, f32) = arr1;
-    var arr2: [4]f32 = vec;
+    var v: @Vector(4, f32) = arr1;
+    var arr2: [4]f32 = v;
     try expectEqual(arr1, arr2);
 
-    const vec2: @Vector(2, f32) = arr1[1..3].*;
+    var v2: @Vector(2, f32) = arr1[1..3].*;
 
     var slice: []const f32 = &arr1;
     var offset: u32 = 1;
 
-    const vec3: @Vector(2, f32) = slice[offset..][0..2].*;
-    try expectEqual(slice[offset], vec2[0]);
-    try expectEqual(slice[offset + 1], vec2[1]);
-    try expectEqual(vec2, vec3);
+    var v3: @Vector(2, f32) = slice[offset..][0..2].*;
+    try expectEqual(slice[offset], v2[0]);
+    try expectEqual(slice[offset + 1], v2[1]);
+    try expectEqual(v2, v3);
+}
+
+const vec2 = @Vector(2, f32);
+const vec3 = @Vector(3, f32);
+const vec4 = @Vector(4, f32);
+
+fn vec2_new(x: f32, y: f32) vec2 {
+    return vec2 { x, y };
+}
+
+fn vec3_new(x: f32, y: f32, z: f32) vec3 {
+    return vec3 { x, y, z };
+}
+
+fn vec4_new(x: f32, y: f32, z: f32, w: f32) vec4 {
+    return vec4 { x, y, z, w };
+}
+
+test "vec2 operator+" {
+    const a = vec2_new(1, 2);
+    const b = vec2_new(3, 4);
+    
+    const c = a + b;
+    try expectEqual(c, vec2_new(4, 6));
+}
+
+test "vec2 operator-" {
+    const a = vec2_new(1, 2);
+    const b = vec2_new(3, 4);
+    
+    const c = a - b;
+    try expectEqual(c, vec2_new(-2, -2));
+}
+
+test "vec2 operator*" {
+    const a = vec2_new(1, 2);
+    const b = vec2_new(3, 4);
+    
+    const c = a * b;
+    try expectEqual(c, vec2_new(3, 8));
+}
+
+test "vec2 operator/" {
+    const a = vec2_new(1, 2);
+    const b = vec2_new(3, 4);
+    
+    const c = a / b;
+    try expectEqual(c, vec2_new(1.0/3.0, 0.5));
+}
+
+test "vec2 @rem" {
+    const a = vec2_new(1, 2);
+    const b = vec2_new(3, 4);
+    
+    const c = @rem(a, b);
+    try expectEqual(c, vec2_new(1, 2));
+}
+
+test "vec2 @mod" {
+    const a = vec2_new(1, 2);
+    const b = vec2_new(3, 4);
+    
+    const c = @mod(a, b);
+    try expectEqual(c, vec2_new(1, 2));
 }
