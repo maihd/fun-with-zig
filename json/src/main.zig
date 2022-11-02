@@ -1,33 +1,51 @@
 const std = @import("std");
 const json = std.json;
 
-const payload = 
+const GitRepo = struct {
+    name: []u8,
+    link: []u8,
+};
+
+const GitUser = struct {
+    name: []u8,
+    repos: []GitRepo
+};
+
+const gitUserJson =
     \\{
-    \\  "vals": {
-    \\      "testing": 1,
-    \\      "production": 42
-    \\  },
-    \\  "uptime": 9999
+    \\  "name": "MaiHD",
+    \\  "repos": [
+    \\      {
+    \\          "name": "fun-with-zig",
+    \\          "link": "https://github.com/maihd/fun-with-zig"
+    \\      },
+    \\      {
+    \\          "name": "vectormath",
+    \\          "link": "https://github.com/maihd/vectormath" 
+    \\      }
+    \\  ] 
     \\}
     ;
 
-const Config = struct {
-    vals: struct {
-        testing: u8,
-        production: u8
-    },
-    uptime: u64
-};
-
-const config = x: {
-    var stream = json.TokenStream.init(payload);
-    var result = json.parse(Config, &stream, .{});
-    break :x result catch unreachable;
-};
-
 pub fn main() !void {
-    if (config.vals.production > 50) {
-        @compileError("Only up to 50 supported");
+    var gpa = std.heap.GeneralPurposeAllocator(.{}){};
+    const allocator = gpa.allocator();
+
+    var user = x: {
+        var stream = json.TokenStream.init(gitUserJson);
+        var result = json.parse(GitUser, &stream, .{ .allocator = allocator });
+        break :x result catch unreachable;
+    };
+    defer std.json.parseFree(
+        GitUser,
+        user,
+        .{ .allocator = allocator },
+    );
+
+    
+    std.log.info("user={s}", .{user.name});
+    for (user.repos) |repo| {
+        std.log.info("  - repo={s}", .{repo.name});
+        std.log.info("    link={s}", .{repo.link});
     }
-    std.log.info("up={d}", .{config.uptime});
 }
