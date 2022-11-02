@@ -36,62 +36,160 @@ const vec2 = @Vector(2, f32);
 const vec3 = @Vector(3, f32);
 const vec4 = @Vector(4, f32);
 
-fn vec2_new(x: f32, y: f32) vec2 {
+fn SwizzleReturnType(comptime components: []const u8) type {
+    if (components.len == 1) {
+        return f32;
+    } else {
+        return @Vector(components.len, f32);
+    }
+}
+
+fn getVectorComponentIndex(comptime component: u8) i32 {
+    return switch (component) {
+        'x' => 0,
+        'y' => 1,
+        'z' => 2,
+        'w' => 3,
+        
+        'r' => 0,
+        'g' => 1,
+        'b' => 2,
+        'a' => 3,
+        
+        'h' => 0,
+        's' => 1,
+        'l' => 2,
+        //'a' => 3,
+
+        else => @compileError("Unknown component!")
+    };
+}
+
+fn swizzle(v: anytype, comptime components: []const u8) SwizzleReturnType(components) {
+    const VectorType = @TypeOf(v);
+    const componentCount = switch (@typeInfo(VectorType)) {
+        .Vector => |info| info.len,
+        else => @compileError("This type cannot swizzle!")
+    };
+
+    if (components.len == 0) {
+        @compileError("Cannot swizzle without any components specify");
+    }
+
+    if (components.len > 4) {
+        @compileError("Too many components on vector!");
+    }
+
+    if (components.len == 1) {
+        return v[comptime getVectorComponentIndex(components[0])];
+    }
+
+    var result: @Vector(components.len, f32) = undefined;
+    inline for (components) |component, i| {
+        if (component == '0') {
+            result[i] = 0;
+            continue;
+        }
+
+        if (component == '1') {
+            result[i] = 1;
+            continue;
+        }
+
+        const index = comptime getVectorComponentIndex(component);
+        if ((index < 0) or (index > componentCount - 1)) {
+            @compileError("This vector does no has the component");
+        }
+
+        result[i] = v[index];
+    }
+    return result;
+}
+
+fn new1(length: comptime_int, scalar: f32) @Vector(length, f32) {
+    if (length < 2 or length > 4) {
+        @compileError("Unsupported vector type!");
+    }
+
+    var result: @Vector(length, f32) = undefined;
+    var index = 0;
+    inline while (index < length) : (index += 1) {
+        result[index] = scalar;
+    }
+    return result;
+}
+
+fn new2(x: f32, y: f32) vec2 {
     return vec2 { x, y };
 }
 
-fn vec3_new(x: f32, y: f32, z: f32) vec3 {
+fn new3(x: f32, y: f32, z: f32) vec3 {
     return vec3 { x, y, z };
 }
 
-fn vec4_new(x: f32, y: f32, z: f32, w: f32) vec4 {
+fn new4(x: f32, y: f32, z: f32, w: f32) vec4 {
     return vec4 { x, y, z, w };
 }
 
 test "vec2 operator+" {
-    const a = vec2_new(1, 2);
-    const b = vec2_new(3, 4);
+    const a = new2(1, 2);
+    const b = new2(3, 4);
     
     const c = a + b;
-    try expectEqual(c, vec2_new(4, 6));
+    try expectEqual(c, new2(4, 6));
 }
 
 test "vec2 operator-" {
-    const a = vec2_new(1, 2);
-    const b = vec2_new(3, 4);
+    const a = new2(1, 2);
+    const b = new2(3, 4);
     
     const c = a - b;
-    try expectEqual(c, vec2_new(-2, -2));
+    try expectEqual(c, new2(-2, -2));
 }
 
 test "vec2 operator*" {
-    const a = vec2_new(1, 2);
-    const b = vec2_new(3, 4);
+    const a = new2(1, 2);
+    const b = new2(3, 4);
     
     const c = a * b;
-    try expectEqual(c, vec2_new(3, 8));
+    try expectEqual(c, new2(3, 8));
 }
 
 test "vec2 operator/" {
-    const a = vec2_new(1, 2);
-    const b = vec2_new(3, 4);
+    const a = new2(1, 2);
+    const b = new2(3, 4);
     
     const c = a / b;
-    try expectEqual(c, vec2_new(1.0/3.0, 0.5));
+    try expectEqual(c, new2(1.0/3.0, 0.5));
 }
 
 test "vec2 @rem" {
-    const a = vec2_new(1, 2);
-    const b = vec2_new(3, 4);
+    const a = new2(1, 2);
+    const b = new2(3, 4);
     
     const c = @rem(a, b);
-    try expectEqual(c, vec2_new(1, 2));
+    try expectEqual(c, new2(1, 2));
 }
 
 test "vec2 @mod" {
-    const a = vec2_new(1, 2);
-    const b = vec2_new(3, 4);
+    const a = new2(1, 2);
+    const b = new2(3, 4);
     
     const c = @mod(a, b);
-    try expectEqual(c, vec2_new(1, 2));
+    try expectEqual(c, new2(1, 2));
+}
+
+test "vec2 swizzle" {
+    const a = new2(1, 2);
+    const b = swizzle(a, "yx");
+    try expectEqual(b[0], a[1]);
+    try expectEqual(b[1], a[0]);
+}
+
+test "vec2 swizzle to vec3" {
+    const a = new2(1, 2);
+    const b = swizzle(a, "xy0");
+    try expectEqual(b[0], a[0]);
+    try expectEqual(b[1], a[1]);
+    try expectEqual(b[2], 0);
 }
