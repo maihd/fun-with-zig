@@ -1,0 +1,7 @@
+id: kx63j3o7pg319l9kfu6mqsa4nc5cijj8lom154hn9lly0h51
+name: capy-ui
+license: unlicense
+description: fun with capy-ui
+root_dependencies:
+build_dependencies:
+  - src: git https://github.com/capy-ui/capy
