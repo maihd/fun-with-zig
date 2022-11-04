@@ -4,3 +4,6 @@ zig-out
 zig-cache
 
 .zigmod
+
+a.exe
+a.pdb
