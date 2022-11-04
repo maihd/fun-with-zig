@@ -1,3 +1,6 @@
 [submodule "raylib/libs/raylib-rig"]
 	path = raylib/libs/raylib-zig
 	url = https://github.com/Not-Nik/raylib-zig
+[submodule "maihd_cjson_bindings/libs/cjson"]
+	path = maihd_cjson_bindings/libs/cjson
+	url = https://github.com/maihd/cjson
