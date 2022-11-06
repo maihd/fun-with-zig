@@ -4,3 +4,6 @@
 [submodule "maihd_cjson_bindings/libs/cjson"]
 	path = maihd_cjson_bindings/libs/cjson
 	url = https://github.com/maihd/cjson
+[submodule "compile_raylib/raylib"]
+	path = compile_raylib/raylib
+	url = https://github.com/raysan5/raylib
