@@ -4,3 +4,6 @@
 [submodule "maihd_cjson_bindings/libs/cjson"]
 	path = maihd_cjson_bindings/libs/cjson
 	url = https://github.com/maihd/cjson
+[submodule "compile_vectormath/libs/vectormath"]
+	path = compile_vectormath/libs/vectormath
+	url = https://github.com/maihd/vectormath
