@@ -7,3 +7,6 @@
 [submodule "compile_vectormath/libs/vectormath"]
 	path = compile_vectormath/libs/vectormath
 	url = https://github.com/maihd/vectormath
+[submodule "ggml_bindings/lib/ggml"]
+	path = ggml_bindings/lib/ggml
+	url = https://github.com/ggerganov/ggml
