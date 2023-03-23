@@ -7,3 +7,6 @@
 [submodule "compile_vectormath/libs/vectormath"]
 	path = compile_vectormath/libs/vectormath
 	url = https://github.com/maihd/vectormath
+[submodule "bindings_mtuner_sdk/libs/rmem"]
+	path = bindings_mtuner_sdk/libs/rmem
+	url = https://github.com/milostosic/rmem
