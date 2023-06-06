@@ -11,18 +11,9 @@ pub fn build(b: *std.build.Builder) void {
     // between Debug, ReleaseSafe, ReleaseFast, and ReleaseSmall.
     const mode = b.standardReleaseOptions();
 
-    const exe = b.addExecutable("ggml_bindings", "src/main.zig");
-
-    exe.addIncludePath(thisDir() ++ "/lib/ggml/include");
-    exe.addIncludePath(thisDir() ++ "/lib/ggml/include/ggml");
-    exe.addCSourceFile(thisDir() ++ "/lib/ggml/src/ggml.c", &[_][]const u8 {
-        "-DGGML_DEBUG=0",
-    });
-
+    const exe = b.addExecutable("simple-simd", "src/main.zig");
     exe.setTarget(target);
     exe.setBuildMode(mode);
-
-    exe.linkLibC();
     exe.install();
 
     const run_cmd = exe.run();
@@ -40,8 +31,4 @@ pub fn build(b: *std.build.Builder) void {
 
     const test_step = b.step("test", "Run unit tests");
     test_step.dependOn(&exe_tests.step);
-}
-
-inline fn thisDir() []const u8 {
-    return comptime std.fs.path.dirname(@src().file) orelse ".";
 }
