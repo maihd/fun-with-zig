@@ -133,5 +133,44 @@ test "Speed test" {
         break :simd128 elapsed_s;
     };
 
+    // Obviously simd128_time must be < scalar_time
     try std.testing.expect(simd128_time < scalar_time);
+}
+
+test "Speed test 2" {
+    const ops = 10000;
+    const string: []const u8 = "Hello world";
+
+    var scalar_time = scalar: {
+        var timer = try std.time.Timer.start();
+        const start = timer.lap();
+
+        var i: usize = 0;
+        while (i < ops) : (i += 1) {
+            try std.testing.expectEqual(indexOf(string, 'H'), 0);
+            try std.testing.expectEqual(indexOf(string, 'X'), null);
+        }
+
+        const end = timer.read();
+        const elapsed_s = @intToFloat(f64, end - start) / std.time.ns_per_s;
+        break :scalar elapsed_s;
+    };
+
+    var simd128_time = simd128: {
+        var timer = try std.time.Timer.start();
+        const start = timer.lap();
+
+        var i: usize = 0;
+        while (i < ops) : (i += 1) {
+            try std.testing.expectEqual(indexOfSimd128(string, 'H'), 0);
+            try std.testing.expectEqual(indexOfSimd128(string, 'X'), null);
+        }
+
+        const end = timer.read();
+        const elapsed_s = @intToFloat(f64, end - start) / std.time.ns_per_s;
+        break :simd128 elapsed_s;
+    };
+
+    // If needle position is < 8 (best case), scalar version always faster than simd 
+    try std.testing.expect(simd128_time > scalar_time);
 }
