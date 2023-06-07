@@ -1,7 +1,15 @@
 const std = @import("std");
 
 fn indexOf(haystack: []const u8, needle: u8) ?usize {
-    return std.mem.indexOf(u8, haystack, &.{needle});
+    // Simply loop all items to search needle position
+    for (haystack) |item, pos| {
+        if (item == needle) {
+            return pos;
+        }
+    }
+    
+    // Not found
+    return null;
 }
 
 fn indexOfSimd128(haystack: []const u8, needle: u8) ?usize {
@@ -93,7 +101,7 @@ test "Behaviour test" {
 
 test "Speed test" {
     const ops = 10000;
-    const string: []const u8 = "Hello world";
+    const string: []const u8 = "Hello world, there is a long long string=)";
 
     var scalar_time = scalar: {
         var timer = try std.time.Timer.start();
@@ -101,7 +109,7 @@ test "Speed test" {
 
         var i: usize = 0;
         while (i < ops) : (i += 1) {
-            try std.testing.expectEqual(indexOf(string, 'H'), 0);
+            try std.testing.expectEqual(indexOf(string, ')'), string.len - 1);
             try std.testing.expectEqual(indexOf(string, 'X'), null);
         }
 
@@ -116,7 +124,7 @@ test "Speed test" {
 
         var i: usize = 0;
         while (i < ops) : (i += 1) {
-            try std.testing.expectEqual(indexOfSimd128(string, 'H'), 0);
+            try std.testing.expectEqual(indexOfSimd128(string, ')'), string.len - 1);
             try std.testing.expectEqual(indexOfSimd128(string, 'X'), null);
         }
 
